@@ -1,0 +1,22 @@
+$vm_base: 750
+@function vw($px)
+  @return $px / $vm_base * 100vw
+
+// @mixin retinaSprite($sprite, $name)
+//   background: $sprite no-repeat
+//   background-size: sprite-width($sprite) / image-width(sprite-file($sprite, $name)) * 100%
+//   background-position: sprite-position($sprite, $name, 0, 0, true)
+
+@mixin iphonex
+  /*iPhone XR*/
+  /* 1792x828px at 326ppi */
+  @media only screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)
+    @content
+  /*iPhone XS/X*/
+  /* 2436x1125px at 458ppi */
+  @media only screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)
+    @content
+  /*iPhone XS Max*/
+  /* 2688x1242px at 458ppi */
+  @media only screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)
+    @content
