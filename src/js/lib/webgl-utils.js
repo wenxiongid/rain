@@ -57,8 +57,6 @@
  * visible.
  */
 
-WebGLUtils = function() {
-
 /**
  * Creates the HTLM for a failure message
  * @param {string} canvasContainerId id of container of th
@@ -159,12 +157,6 @@ var create3DContext = function(canvas, opt_attribs) {
   return context;
 }
 
-return {
-  create3DContext: create3DContext,
-  setupWebGL: setupWebGL
-};
-}();
-
 /**
  * Provides requestAnimationFrame in a cross browser
  * way.
@@ -195,3 +187,8 @@ if (!window.cancelAnimationFrame) {
                                  window.oCancelAnimationFrame || window.oCancelRequestAnimationFrame ||
                                  window.clearTimeout);
 }
+
+export {
+  create3DContext,
+  setupWebGL
+};

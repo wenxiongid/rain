@@ -1,3 +1,5 @@
+import { getWebGLContext, createProgram } from './lib/cuon-utils';
+
 const MAPSIZE = 1024;
 
 class GLRenderer {
