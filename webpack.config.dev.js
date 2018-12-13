@@ -7,7 +7,6 @@ var config = Object.assign(commonConfig, {
     path: path.resolve(__dirname, "src/"),
     filename: "js/[name].bundle.js"
   },
-  
   devServer: {
     contentBase: path.join(__dirname, 'public'),
     disableHostCheck: true,

@@ -1,4 +1,4 @@
-import * as WebGLUtils from './webgl-utils.js';
+import * as WebGLUtils from './webgl-utils';
 
 // cuon-utils.js (c) 2012 kanda and matsuda
 /**
@@ -113,6 +113,7 @@ function getWebGLContext(canvas, canvasOpt, opt_debug) {
 
   return gl;
 }
+
 
 export {
   initShaders,

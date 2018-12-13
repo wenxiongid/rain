@@ -57,6 +57,7 @@
  * visible.
  */
 
+
 /**
  * Creates the HTLM for a failure message
  * @param {string} canvasContainerId id of container of th
@@ -156,6 +157,7 @@ var create3DContext = function(canvas, opt_attribs) {
   }
   return context;
 }
+
 
 /**
  * Provides requestAnimationFrame in a cross browser

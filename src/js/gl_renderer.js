@@ -1,9 +1,9 @@
-import { getWebGLContext, createProgram } from './lib/cuon-utils';
+import { getWebGLContext, createProgram } from './cuon-utils';
 
 const MAPSIZE = 1024;
 
 class GLRenderer {
-  constructor(canvas, vshader, fshader, mapVShader, mapFShader) {
+  constructor(canvas, vshader, fshader) {
     this.timestamp = (new Date()).getTime();
     this.canvas = canvas;
     this.gl = getWebGLContext(canvas, {
@@ -19,22 +19,9 @@ class GLRenderer {
     this.program.attributeLocation = {};
     this.program.uniformLocation = {};
 
-    this.mapProgram = createProgram(this.gl, mapVShader, mapFShader);
-    this.mapProgram.attributeLocation = {};
-    this.mapProgram.uniformLocation = {};
-
     // this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE);
     // this.gl.enable(this.gl.BLEND);
     this.gl.clearColor(1.0, 1.0, 1.0, 0.0);
-
-
-    this.fbo = this.initFramebufferObject();
-    if (!this.fbo) {
-      console.log("Failed to intialize the framebuffer object (FBO)");
-      return;
-    }
-    this.gl.activeTexture(this.gl.TEXTURE0);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.fbo.texture);
 
     this.setAttribute(
       this.program,
@@ -206,37 +193,43 @@ class GLRenderer {
 
     return framebuffer;
   }
-  drawMap(time){
-    let _this = this;
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
-    this.gl.viewport(0, 0, MAPSIZE, MAPSIZE);
-    this.gl.useProgram(this.mapProgram);
-    this.setUniform1f(this.mapProgram, "u_time", (new Date().getTime() - this.timestamp + time) / 1000);
-    this.setAttribute(this.mapProgram, "a_Position", new Float32Array([
-      -1.0,
-      -1.0,
+  loadMap(imageUrl){
+    const _this = this;
+    const gl = _this.gl;
+    const texture = gl.createTexture();
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
-      1.0,
-      -1.0,
-
-      -1.0,
-      1.0,
-
-      -1.0,
-      1.0,
-
-      1.0,
-      -1.0,
-
-      1.0,
-      1.0
-    ]), 2, "FLOAT");
-    this.setUniform2v(this.mapProgram, "u_resolution", [
-      MAPSIZE,
-      MAPSIZE
-    ]);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+      width, height, border, srcFormat, srcType,
+      pixel);
+    const img = new Image();
+    img.onload = () => {
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+        srcFormat, srcType, img);
+      if (isPowerOf2(img.width) && isPowerOf2(img.height)) {
+        // Yes, it's a power of 2. Generate mips.
+        gl.generateMipmap(gl.TEXTURE_2D);
+      } else {
+        // No, it's not a power of 2. Turn of mips and set
+        // wrapping to clamp to edge
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      }
+    };
+    img.src = imageUrl;
+    return texture;
   }
   drawScene() {
     let _this = this;
@@ -267,13 +260,20 @@ class GLRenderer {
       this.canvas.width,
       this.canvas.height
     ]);
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    if(this.texture){
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+    }
     this.setUniform1f(this.program, "u_map", 0);
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
   }
-  update(time) {
-    this.drawMap(time);
+  update() {
     this.drawScene();
   }
+}
+
+function isPowerOf2(val){
+  return (val & (val - 1)) == 0;
 }
 
 export {
