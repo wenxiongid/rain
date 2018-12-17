@@ -15,6 +15,10 @@ stats.domElement.style.top = "0px";
 document.body.appendChild(stats.domElement);
 
 let canvas = getResizeEl(document.getElementById("webgl"));
+function touchmoveHandler(e){
+  e.preventDefault();
+}
+canvas.addEventListener('touchmove', touchmoveHandler, false);
 
 let glRenderer;
 

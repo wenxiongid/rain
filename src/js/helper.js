@@ -1,6 +1,8 @@
+const devicePixelRatio = window.devicePixelRatio;
+
 function resize(el) {
-  el.width = window.innerWidth;
-  el.height = window.innerHeight;
+  el.width = window.innerWidth * devicePixelRatio;
+  el.height = window.innerHeight * devicePixelRatio;
 }
 
 function getResizeEl(el){

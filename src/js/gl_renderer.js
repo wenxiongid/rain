@@ -13,6 +13,10 @@ class GLRenderer {
       console.log("Failed to get the rendering context for WebGL");
       return;
     }
+    this.imgInfo = {
+      width: 1,
+      height: 1
+    };
     this.gl.getExtension('OES_standard_derivatives');
     this.gl.getExtension('EXT_shader_texture_lod');
     this.program = createProgram(this.gl, vshader, fshader);
@@ -213,6 +217,10 @@ class GLRenderer {
       pixel);
     const img = new Image();
     img.onload = () => {
+      _this.imgInfo = {
+        width: img.width,
+        height: img.height
+      };
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
@@ -259,6 +267,10 @@ class GLRenderer {
     this.setUniform2v(this.program, "u_resolution", [
       this.canvas.width,
       this.canvas.height
+    ]);
+    this.setUniform2v(this.program, "u_imgResolution", [
+      this.imgInfo.width,
+      this.imgInfo.height
     ]);
     this.gl.activeTexture(this.gl.TEXTURE0);
     if(this.texture){
