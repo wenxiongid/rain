@@ -5,6 +5,7 @@ precision mediump float;
 #define S(x, y, z) smoothstep(x, y, z)
 #define PI 3.1415926
 #define TWO_PI 6.2831852
+#define PI 3.1415926
 
 uniform vec2 u_resolution;
 uniform sampler2D u_map;
@@ -13,6 +14,27 @@ varying vec2 v_texCoord;
 
 float N(float t) {
 	return fract(sin(t*10234.324)*123423.23512);
+}
+
+vec4 blur(sampler2D map, vec2 uv, float offset){
+  vec4 color = vec4(0.0);
+  vec2 off1 = vec2(0.0, 5.0) * 1.3846153846;
+  vec2 off2 = vec2(5.0, 0.0) * 3.2307692308;
+  float angle = 0.0;
+  const int segment = 5;
+  for(int i = 0; i < segment; i++){
+    angle = PI / float(segment) * float(i);
+    off1 = vec2(cos(angle), sin(angle)) * 1.3846153846 * offset;
+    off2 = vec2(sin(angle), cos(angle)) * 3.2307692308 * offset;
+    color += texture2D(map, uv) * 0.2270270270;
+    color += texture2D(map, uv + (off1 / u_resolution)) * 0.3162162162;
+    color += texture2D(map, uv - (off1 / u_resolution)) * 0.3162162162;
+    color += texture2D(map, uv + (off2 / u_resolution)) * 0.0702702703;
+    color += texture2D(map, uv - (off2 / u_resolution)) * 0.0702702703;
+  }
+  color /= float(segment);
+
+  return color;
 }
 
 vec2 rain(vec2 uv, float t){
@@ -49,13 +71,15 @@ vec2 rain(vec2 uv, float t){
 void main(){
   vec2 st = v_texCoord;
   float t = u_time;
-  vec2 rainDistord = rain(st * 15.0, t) * 0.5;
-  rainDistord += rain(st * 12.0, t) * 0.5;
+  vec2 rainDistord = rain(st * 15.0, t) * 0.2;
+  rainDistord += rain(st * 12.0, t * 1.5) * 0.3;
 
-  st.x += sin(st.y * 70.0) * 0.001;
-  st.y += sin(st.x * 170.0) * 0.001;
+  st.x += sin(st.y * 70.0) * 0.0005;
+  st.y += sin(st.x * 170.0) * 0.0005;
+  vec4 color = vec4(0.0);
 
-  vec4 color = texture2D(u_map, st - rainDistord * 0.5);
-  // color = vec4(, 0.0, 1.0);
+  color += blur(u_map, st - rainDistord * 0.5, 2.0);
+  // color += texture2D(u_map, st - rainDistord * 0.5) * 0.5;
+  
   gl_FragColor = color;
 }
