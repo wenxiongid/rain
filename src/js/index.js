@@ -3,7 +3,8 @@ import GLRenderer from './gl_renderer';
 import vShader from "../plugin/v_shader.glsl";
 import fShader from "../plugin/f_shader.glsl";
 import Stats from 'stats-js';
-import bgImg from '../img/bg.jpg';
+import bgImg from '../img/sample.jpg';
+// import bgImg from '../img/bg.jpg';
 
 import '../sass/index.sass';
 
